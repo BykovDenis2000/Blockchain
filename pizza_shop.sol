@@ -22,10 +22,11 @@ contract PizzaShop {
         string name;
         uint256 price;
         address owner;
+        string imgUrl;
     }
 
     // меню
-    Pizza[] private menu;
+    Pizza[] public menu;
 
     // событие обычной покупки
     event Purchase(address indexed buyer, string pizzaName, uint256 amount);
@@ -36,9 +37,10 @@ contract PizzaShop {
     constructor(address own) {
         owner = own;
         loyaltyToken = new LoyaltyToken();
-        menu.push(Pizza("Margherita", 10, owner));
-        menu.push(Pizza("Pepperoni",  12, owner));
-        menu.push(Pizza("Vegetarian", 11, owner));
+        menu.push(Pizza("Margherita", 10, owner, "https://dodopizza-a.akamaihd.net/static/Img/Products/748949429e25404ea10aab002c910d84_366x366.webp"));
+        menu.push(Pizza("Pepperoni",  12, owner, "https://dodopizza-a.akamaihd.net/static/Img/Products/fb9cc5b8ff2e47bdbcbdcb5930cddf06_366x366.webp"));
+        menu.push(Pizza("Vegetarian", 11, owner, "https://dodopizza-a.akamaihd.net/static/Img/Products/d6c9f93ea37649ac923e9586c034a5a0_366x366.webp"));
+        menu.push(Pizza("4 Seasons", 10, owner, "https://dodopizza-a.akamaihd.net/static/Img/Products/d51fa179760041f0831e63fa21c39402_366x366.webp"));
     }
 
     function addPizzaToCart(uint256 _index, uint256 _size) public {
@@ -113,9 +115,9 @@ contract PizzaShop {
     }
 
     // добавление новой пиццы в меню
-    function addPizza(string memory _name, uint256 _price) public {
+    function addPizza(string memory _name, uint256 _price, string memory _imgUrl) public {
         require(msg.sender == owner, "Only the owner can add pizzas");
-        menu.push(Pizza(_name, _price, owner));
+        menu.push(Pizza(_name, _price, owner, _imgUrl));
     }
     
     // смена владельца
@@ -140,8 +142,16 @@ contract PizzaShop {
         return owner;
     }
 
-    function getTokenBalance(address _address) public view returns (uint256) {
-        return loyaltyToken.balanceOf(_address);
+    function getTokenBalance() public view returns (uint256) {
+        return loyaltyToken.balanceOf(msg.sender);
+    }
+
+    function getCart() public view returns (Pizza[] memory) {
+        return pizzaCart[msg.sender];
+    }
+
+    function getOrderHistory() public view returns (Pizza[] memory) {
+        return orderHistory[msg.sender];
     }
 }
 contract LoyaltyToken is ERC20 {
